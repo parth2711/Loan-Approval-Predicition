@@ -87,29 +87,25 @@ def save_model(model,model_name):
 
 if __name__=="__main__":
     df=load_data("loan_approval_dataset.csv")
-    df.columns=df.columns.str.strip().str.lower()
-    df=df.apply(lambda x:x.str.strip() if x.dtype=="object" else x)
+    df.columns = df.columns.str.strip().str.lower()
+    df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
     
-    df["loan_status"]=df["loan_status"].map({"Approved":1,"Rejected":0})
+    df["loan_status"] = df["loan_status"].map({"Approved": 1, "Rejected": 0})
     
     if "loan_id" in df.columns:
-        df=df.drop("loan_id",axis=1)
+        df = df.drop("loan_id", axis=1)
 
-    X,y=feature_split(df,"loan_status")
-    X=pd.get_dummies(X,drop_first=True)
+    X, y = feature_split(df, "loan_status")
+    X = pd.get_dummies(X, drop_first=True)
 
-    with open("feature_columns.pkl","wb") as f:
-        pickle.dump(X.columns.tolist(),f)
+    with open("feature_columns.pkl", "wb") as f:
+        pickle.dump(X.columns.tolist(), f)
 
-    X_train,X_test,y_train,y_test=data_split(X,y)
+    X_train, X_test, y_train, y_test = data_split(X, y)
 
-    print("\nDecision Tree")
-    dt_model=decision_tree(X_train,y_train)
-    model_evaluation(dt_model,X_test,y_test)
+    dt_model = decision_tree(X_train, y_train)
+    rf_model = random_forest(X_train, y_train)
 
-    print("\nRandom Forest")
-    rf_model=random_forest(X_train,y_train)
-    model_evaluation(rf_model,X_test,y_test)
-
-    save_model(dt_model,"decision_tree.pkl")
-    save_model(rf_model,"random_forest.pkl")
+    save_model(dt_model, "decision_tree.pkl")
+    save_model(rf_model, "random_forest.pkl")
+    print("Models and feature columns saved successfully.")
