@@ -8,32 +8,81 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 def load_data(file_path: str)->pd.DataFrame:
+    """
+    Loads the dataset.
+    """
     return pd.read_csv(file_path)
+
+def eda(df: pd.DataFrame):
+    """
+    Prints basic information about the dataset.
+    """
+    print("Dataset shape:",df.shape)
+    print("\nColumn info:")
+    print(df.info())
+    print("\nMissing values:")
+    print(df.isnull().sum())
+
+def target_imbalance(df: pd.DataFrame,target: str):
+    """
+    Shows class distribution of the target variable.
+    """
+    print("\nTarget value counts:")
+    print(df[target].value_counts())
+
+    sns.countplot(x=target, data=df)
+    plt.title("Target Distribution")
+    plt.show()
+
+def numeric_summary(df: pd.DataFrame):
+    """
+    Displays summary statistics for numeric features.
+    """
+    print("\nStatistical summary:")
+    print(df.describe())
     
 def feature_split(df: pd.DataFrame,target:str):
+    """
+    Splits the data for target.
+    """
     X=df.drop(target,axis=1)
     y=df[target]
     return X,y
 
 def data_split(X,y):
+    """
+    Splits the data for train and test.
+    """
     return train_test_split(X, y, test_size=0.2, random_state=42)
 
 def decision_tree(X_train,y_train):
+    """
+    Trains decision tree.
+    """
     dt_model=DecisionTreeClassifier(random_state=42)
     dt_model.fit(X_train,y_train)
     return dt_model
 
 def random_forest(X_train,y_train):
+    """
+    Trains random forest.
+    """
     rf_model=RandomForestClassifier(n_estimators=100,random_state=42)
     rf_model.fit(X_train,y_train)
     return rf_model
 
 def model_evaluation(model,X_test,y_test):
+    """
+    Displays performance measures of trained model.
+    """
     prediction=model.predict(X_test)
     print(confusion_matrix(y_test,prediction))
     print(classification_report(y_test,prediction))
 
 def save_model(model,model_name):
+    """
+    Saves the trained model.
+    """
     with open(model_name,'wb') as f:
         pickle.dump(model,f)
 
