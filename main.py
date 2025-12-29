@@ -29,8 +29,7 @@ def target_imbalance(df: pd.DataFrame,target: str):
     """
     print("\nTarget value counts:")
     print(df[target].value_counts())
-
-    sns.countplot(x=target, data=df)
+    sns.countplot(x=target,data=df)
     plt.title("Target Distribution")
     plt.show()
 
@@ -40,7 +39,7 @@ def numeric_summary(df: pd.DataFrame):
     """
     print("\nStatistical summary:")
     print(df.describe())
-    
+
 def feature_split(df: pd.DataFrame,target:str):
     """
     Splits the data for target.
@@ -53,58 +52,57 @@ def data_split(X,y):
     """
     Splits the data for train and test.
     """
-    return train_test_split(X, y, test_size=0.2, random_state=42)
+    return train_test_split(X,y,test_size=0.2,random_state=42)
 
 def decision_tree(X_train,y_train):
     """
     Trains decision tree.
     """
-    dt_model=DecisionTreeClassifier(random_state=42)
-    dt_model.fit(X_train,y_train)
-    return dt_model
+    model=DecisionTreeClassifier(random_state=42)
+    model.fit(X_train,y_train)
+    return model
 
 def random_forest(X_train,y_train):
     """
     Trains random forest.
     """
-    rf_model=RandomForestClassifier(n_estimators=100,random_state=42)
-    rf_model.fit(X_train,y_train)
-    return rf_model
+    model=RandomForestClassifier(n_estimators=100,random_state=42)
+    model.fit(X_train,y_train)
+    return model
 
 def model_evaluation(model,X_test,y_test):
     """
     Displays performance measures of trained model.
     """
-    prediction=model.predict(X_test)
-    print(confusion_matrix(y_test,prediction))
-    print(classification_report(y_test,prediction))
+    pred=model.predict(X_test)
+    print(confusion_matrix(y_test,pred))
+    print(classification_report(y_test,pred))
 
 def save_model(model,model_name):
     """
     Saves the trained model.
     """
-    with open(model_name,'wb') as f:
+    with open(model_name,"wb") as f:
         pickle.dump(model,f)
 
 if __name__=="__main__":
     df=load_data("loan_approval_dataset.csv")
-    df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-
-    df[" loan_status"]=df[" loan_status"].map({'Approved':1,'Rejected':0})
+    df.columns=df.columns.str.strip()
+    df=df.apply(lambda x:x.str.strip() if x.dtype=="object" else x)
+    df["loan_status"]=df["loan_status"].map({"Approved":1,"Rejected":0})
     
-    X,y=feature_split(df," loan_status")
-
+    X,y=feature_split(df,"loan_status")
     X=pd.get_dummies(X,drop_first=True)
 
-    with open("feature_columns.pkl", "wb") as f:
-        pickle.dump(X.columns.tolist(), f)
+    with open("feature_columns.pkl","wb") as f:
+        pickle.dump(X.columns.tolist(),f)
 
-    X_train, X_test, y_train, y_test=data_split(X,y)
+    X_train,X_test,y_train,y_test=data_split(X,y)
 
     print("\nDecision Tree")
     dt_model=decision_tree(X_train,y_train)
     model_evaluation(dt_model,X_test,y_test)
-    
+
     print("\nRandom Forest")
     rf_model=random_forest(X_train,y_train)
     model_evaluation(rf_model,X_test,y_test)
