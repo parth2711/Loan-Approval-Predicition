@@ -12,6 +12,12 @@ with open("random_forest.pkl","rb") as f:
 with open("feature_columns.pkl","rb") as f:
     feature_columns=pickle.load(f)
 
+label_map={
+    0:"COLLECTION",
+    1:"PAIDOFF",
+    2:"COLLECTION_PAIDOFF"
+}
+
 #proceeding with ui
 st.title("🏦 Loan Approval Prediction")
 st.caption("Decision Tree and Random Forest based system")
@@ -20,7 +26,7 @@ st.divider()
 
 with st.expander("ℹ️ About this app"):
     st.write("""
-    This web app predicts whether a loan application is likely to be Approved or Rejected.
+    This web app predicts the repayment status of a loan application.
 
     Models used:
     - Decision Tree
@@ -40,15 +46,15 @@ st.subheader("Applicant Details")
 col1,col2=st.columns(2)
 with col1:
     gender=st.selectbox("Gender",["male","female"])
-    education=st.selectbox("Education",["High School or Below","college","Bechalor","Master or Above"])
+    education=st.selectbox("Education",["high school or below","college","bachelor","master or above"])
     age=st.number_input("Age",min_value=18,max_value=100,value=30)
 with col2:
     principal=st.number_input("Principal Amount",min_value=300,max_value=1000,value=1000,step=100)
     terms=st.selectbox("Terms (days)",[7,15,30])
 
 input_dict={
-    "gender":gender,
-    "education":education,
+    "gender":gender.lower(),
+    "education":education.lower(),
     "age":age,
     "principal":principal,
     "terms":terms
@@ -62,15 +68,22 @@ st.divider()
 
 if st.button("Predict Loan Status"):
     pred=model.predict(input_df)[0]
-    prob=model.predict_proba(input_df)[0]
-    if pred==1:
-        st.success("Loan Approved")
+    probs=model.predict_proba(input_df)[0]
+
+    pred_label=label_map[pred]
+
+    if pred_label=="PAIDOFF":
+        st.success("Loan Likely to be Paid Off")
+    elif pred_label=="COLLECTION_PAIDOFF":
+        st.warning("Loan Paid After Collection")
     else:
-        st.error("Loan Rejected")
+        st.error("Loan Likely to go into Collection")
+
     st.subheader("Prediction Confidence")
-    st.write(f"Approval Probability: {prob[1]:.2%}")
-    st.write(f"Rejection Probability: {prob[0]:.2%}")
-    st.progress(int(prob[1]*100))
+    for i,label in label_map.items():
+        st.write(f"{label}: {probs[i]:.2%}")
+
+    st.progress(int(probs[pred]*100))
     st.caption(f"Prediction made using {model_choice}")
 
 st.divider()
