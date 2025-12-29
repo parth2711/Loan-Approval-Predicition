@@ -1,18 +1,15 @@
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report,confusion_matrix
 import pandas as pd
-import numpy as np
 import pickle
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-def load_data(file_path: pd.DataFrame)->pd.DataFrame:
-    df=pd.read_csv(file_path)
-    return df
-
+def load_data(file_path: str)->pd.DataFrame:
+    return pd.read_csv(file_path)
+    
 def feature_split(df: pd.DataFrame,target:str):
     X=df.drop(target,axis=1)
     y=df[target]
@@ -37,5 +34,25 @@ def model_evaluation(model,X_test,y_test):
     print(classification_report(y_test,prediction))
 
 def save_model(model,model_name):
-    with open(f'{model}','wb') as f:
+    with open(model_name,'wb') as f:
         pickle.dump(model,f)
+
+if __name__=="__main__":
+    df=load_data("loan_approval_dataset.csv")
+    df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+
+    df[" loan_status"]=df[" loan_status"].map({'Approved':1,'Rejected':0})
+    
+    X,y=feature_split(df," loan_status")
+
+    X=pd.get_dummies(X,drop_first=True)
+
+    X_train, X_test, y_train, y_test=data_split(X,y)
+
+    print("\nDecision Tree")
+    dt_model=decision_tree(X_train,y_train)
+    model_evaluation(dt_model,X_test,y_test)
+    
+    print("\nRandom Forest")
+    rf_model=random_forest(X_train,y_train)
+    model_evaluation(rf_model,X_test,y_test)
