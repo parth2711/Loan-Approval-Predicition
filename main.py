@@ -1,7 +1,8 @@
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report,confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.preprocessing import OneHotEncoder
 import pandas as pd
 import pickle
 import matplotlib.pyplot as plt
@@ -11,7 +12,10 @@ def load_data(file_path: str)->pd.DataFrame:
     """
     Loads the dataset.
     """
-    return pd.read_csv(file_path)
+    df = pd.read_csv(file_path)
+    df.columns = df.columns.str.strip()
+    df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+    return df
 
 def eda(df: pd.DataFrame):
     """
@@ -44,7 +48,7 @@ def feature_split(df: pd.DataFrame,target:str):
     """
     Splits the data for target.
     """
-    X=df[["principal","terms","age","education","gender"]]
+    X=df.drop(columns=[target, 'loan_id'], errors='ignore')
     y=df[target]
     return X,y
 
@@ -52,17 +56,13 @@ def data_split(X,y):
     """
     Splits the data for train and test.
     """
-    return train_test_split(X,y,test_size=0.2,random_state=42,stratify=y)
+    return train_test_split(X,y,test_size=0.2,random_state=42)
 
 def decision_tree(X_train,y_train):
     """
     Trains decision tree.
     """
-    model=DecisionTreeClassifier(
-        max_depth=6,
-        min_samples_leaf=10,
-        random_state=42
-    )
+    model=DecisionTreeClassifier(random_state=42)
     model.fit(X_train,y_train)
     return model
 
@@ -70,13 +70,7 @@ def random_forest(X_train,y_train):
     """
     Trains random forest.
     """
-    model=RandomForestClassifier(
-        n_estimators=200,
-        max_depth=8,
-        min_samples_leaf=10,
-        random_state=42,
-        class_weight="balanced"
-    )
+    model=RandomForestClassifier(n_estimators=100,random_state=42)
     model.fit(X_train,y_train)
     return model
 
@@ -96,35 +90,39 @@ def save_model(model,model_name):
         pickle.dump(model,f)
 
 if __name__=="__main__":
-    df=load_data("loan.csv")
-    df.columns=df.columns.str.strip().str.lower()
-    df=df.apply(lambda x:x.strip().lower() if isinstance(x,str) else x)
-
-    df["loan_status"]=df["loan_status"].replace({
-        "paidoff":1,
-        "paid off":1,
-        "approved":1,
-        "collection":0,
-        "collection_paidoff":0,
-        "rejected":0
-    })
-    df=df.dropna(subset=["loan_status"])
-
+    df=load_data("loan_approval_dataset.csv")
+    eda(df)
+    df["loan_status"]=df["loan_status"].map({"Approved":1,"Rejected":0})
+    target_imbalance(df, "loan_status")
+    numeric_summary(df)
+    
     X,y=feature_split(df,"loan_status")
-    X=pd.get_dummies(X,drop_first=True)
-
+    
+    cat_cols = ['education', 'self_employed']
+    num_cols = [c for c in X.columns if c not in cat_cols]
+    
+    encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore', drop='first')
+    encoded_cats = encoder.fit_transform(X[cat_cols])
+    
+    X_encoded = pd.concat([
+        pd.DataFrame(encoded_cats, columns=encoder.get_feature_names_out(cat_cols)),
+        X[num_cols].reset_index(drop=True)
+    ], axis=1)
+    
+    with open("encoder.pkl", "wb") as f:
+        pickle.dump(encoder, f)
     with open("feature_columns.pkl","wb") as f:
-        pickle.dump(X.columns.tolist(),f)
-
-    X_train,X_test,y_train,y_test=data_split(X,y)
-
+        pickle.dump(X_encoded.columns.tolist(),f)
+        
+    X_train,X_test,y_train,y_test=data_split(X_encoded,y)
+    
     print("\nDecision Tree")
     dt_model=decision_tree(X_train,y_train)
     model_evaluation(dt_model,X_test,y_test)
-
+    
     print("\nRandom Forest")
     rf_model=random_forest(X_train,y_train)
     model_evaluation(rf_model,X_test,y_test)
-
+    
     save_model(dt_model,"decision_tree.pkl")
     save_model(rf_model,"random_forest.pkl")
