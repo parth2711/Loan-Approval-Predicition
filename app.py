@@ -12,12 +12,6 @@ with open("random_forest.pkl","rb") as f:
 with open("feature_columns.pkl","rb") as f:
     feature_columns=pickle.load(f)
 
-label_map={
-    0:"COLLECTION",
-    1:"PAIDOFF",
-    2:"COLLECTION_PAIDOFF"
-}
-
 #proceeding with ui
 st.title("🏦 Loan Approval Prediction")
 st.caption("Decision Tree and Random Forest based system")
@@ -26,7 +20,7 @@ st.divider()
 
 with st.expander("ℹ️ About this app"):
     st.write("""
-    This web app predicts the repayment status of a loan application.
+    This web app predicts whether a loan application is likely to be Approved or Rejected.
 
     Models used:
     - Decision Tree
@@ -68,7 +62,13 @@ st.divider()
 
 if st.button("Predict Loan Status"):
     pred=model.predict(input_df)[0]
-    prob=model.predict_proba(input_df)[0]
+    probs=model.predict_proba(input_df)[0]
+    classes=model.classes_
+
+    class_probs=dict(zip(classes,probs))
+
+    approval_prob=class_probs.get(1,1.0 if pred==1 else 0.0)
+    rejection_prob=class_probs.get(0,1.0 if pred==0 else 0.0)
 
     if pred==1:
         st.success("Loan Approved")
@@ -76,15 +76,9 @@ if st.button("Predict Loan Status"):
         st.error("Loan Rejected")
 
     st.subheader("Prediction Confidence")
-    class_probs=dict(zip(model.classes_,prob))
-
-    approval_prob=class_probs.get(1,0.0)
-    rejection_prob=class_probs.get(0,0.0)
-
     st.write(f"Approval Probability: {approval_prob:.2%}")
     st.write(f"Rejection Probability: {rejection_prob:.2%}")
     st.progress(int(approval_prob*100))
-
     st.caption(f"Prediction made using {model_choice}")
 
 st.divider()
