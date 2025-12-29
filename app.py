@@ -68,22 +68,18 @@ st.divider()
 
 if st.button("Predict Loan Status"):
     pred=model.predict(input_df)[0]
-    probs=model.predict_proba(input_df)[0]
+    prob=model.predict_proba(input_df)[0]
 
-    pred_label=label_map[pred]
-
-    if pred_label=="PAIDOFF":
-        st.success("Loan Likely to be Paid Off")
-    elif pred_label=="COLLECTION_PAIDOFF":
-        st.warning("Loan Paid After Collection")
+    if pred==1:
+        st.success("Loan Approved")
     else:
-        st.error("Loan Likely to go into Collection")
+        st.error("Loan Rejected")
 
     st.subheader("Prediction Confidence")
-    for i,label in label_map.items():
-        st.write(f"{label}: {probs[i]:.2%}")
+    st.write(f"Approval Probability: {prob[1]:.2%}")
+    st.write(f"Rejection Probability: {prob[0]:.2%}")
+    st.progress(int(prob[1]*100))
 
-    st.progress(int(probs[pred]*100))
     st.caption(f"Prediction made using {model_choice}")
 
 st.divider()

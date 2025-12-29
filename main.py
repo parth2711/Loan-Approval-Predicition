@@ -73,6 +73,7 @@ def random_forest(X_train,y_train):
     random_state=42,
     class_weight="balanced")
 
+
     model.fit(X_train,y_train)
     return model
 
@@ -104,7 +105,6 @@ if __name__=="__main__":
     "collection_paidoff":0,
     "rejected":0
     })
-
     df=df.dropna(subset=["loan_status"])
 
     X,y=feature_split(df,"loan_status")
