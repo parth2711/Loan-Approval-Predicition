@@ -43,14 +43,14 @@ with col1:
     married=st.selectbox("Married",["Yes","No"])
     education=st.selectbox("Education",["Graduate","Not Graduate"])
     dependents=st.selectbox("Dependents",["0","1","2","3+"])
-    applicant_income=st.number_input("Applicant Income",min_value=0)
-    loan_amount=st.number_input("Loan Amount",min_value=0)
+    applicant_income=st.number_input("Applicant Income (monthly)",min_value=500,max_value=50000,value=6000,step=500)
+    loan_amount=st.number_input("Loan Amount (in thousands)",min_value=50,max_value=700,value=120,step=10)
 with col2:
     self_employed=st.selectbox("Self Employed",["Yes","No"])
     property_area=st.selectbox("Property Area",["Urban","Semiurban","Rural"])
     credit_history=st.selectbox("Credit History",[1.0,0.0])
-    coapplicant_income=st.number_input("Coapplicant Income",min_value=0)
-    loan_term=st.number_input("Loan Term (months)",min_value=0)
+    coapplicant_income=st.number_input("Coapplicant Income (monthly)",min_value=0,max_value=30000,value=2000,step=500)
+    loan_term=st.number_input("Loan Term (months)",min_value=120,max_value=480,value=360,step=12)
 
 input_dict={
     "gender":gender,

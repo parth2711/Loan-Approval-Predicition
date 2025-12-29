@@ -90,7 +90,7 @@ if __name__=="__main__":
     df.columns=df.columns.str.strip()
     df=df.apply(lambda x:x.str.strip() if x.dtype=="object" else x)
     df["loan_status"]=df["loan_status"].map({"Approved":1,"Rejected":0})
-    
+
     X,y=feature_split(df,"loan_status")
     X=pd.get_dummies(X,drop_first=True)
 
