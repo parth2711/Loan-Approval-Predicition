@@ -96,6 +96,9 @@ if __name__=="__main__":
 
     X=pd.get_dummies(X,drop_first=True)
 
+    with open("feature_columns.pkl", "wb") as f:
+        pickle.dump(X.columns.tolist(), f)
+
     X_train, X_test, y_train, y_test=data_split(X,y)
 
     print("\nDecision Tree")
