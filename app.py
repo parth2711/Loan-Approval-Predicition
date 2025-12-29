@@ -76,9 +76,14 @@ if st.button("Predict Loan Status"):
         st.error("Loan Rejected")
 
     st.subheader("Prediction Confidence")
-    st.write(f"Approval Probability: {prob[1]:.2%}")
-    st.write(f"Rejection Probability: {prob[0]:.2%}")
-    st.progress(int(prob[1]*100))
+    class_probs=dict(zip(model.classes_,prob))
+
+    approval_prob=class_probs.get(1,0.0)
+    rejection_prob=class_probs.get(0,0.0)
+
+    st.write(f"Approval Probability: {approval_prob:.2%}")
+    st.write(f"Rejection Probability: {rejection_prob:.2%}")
+    st.progress(int(approval_prob*100))
 
     st.caption(f"Prediction made using {model_choice}")
 
