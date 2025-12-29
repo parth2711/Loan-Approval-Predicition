@@ -52,13 +52,13 @@ def data_split(X,y):
     """
     Splits the data for train and test.
     """
-    return train_test_split(X,y,test_size=0.2,random_state=42)
+    return train_test_split(X,y,test_size=0.2,random_state=42,stratify=y)
 
 def decision_tree(X_train,y_train):
     """
     Trains decision tree.
     """
-    model=DecisionTreeClassifier(random_state=42)
+    model=DecisionTreeClassifier(max_depth=6,min_samples_leaf=10,random_state=42)
     model.fit(X_train,y_train)
     return model
 
@@ -66,7 +66,7 @@ def random_forest(X_train,y_train):
     """
     Trains random forest.
     """
-    model=RandomForestClassifier(n_estimators=100,random_state=42)
+    model=RandomForestClassifier(n_estimators=200,max_depth=8,min_samples_leaf=10,random_state=42)
     model.fit(X_train,y_train)
     return model
 
@@ -88,10 +88,11 @@ def save_model(model,model_name):
 if __name__=="__main__":
     df=load_data("loan_approval_dataset.csv")
     df.columns=df.columns.str.strip()
+    df.columns=df.columns.str.replace('_',' ').str.title().str.replace(' ','_')
     df=df.apply(lambda x:x.str.strip() if x.dtype=="object" else x)
-    df["loan_status"]=df["loan_status"].map({"Approved":1,"Rejected":0})
-
-    X,y=feature_split(df,"loan_status")
+    df["Loan_Status"]=df["Loan_Status"].map({"Approved":1,"Rejected":0})
+    
+    X,y=feature_split(df,"Loan_Status")
     X=pd.get_dummies(X,drop_first=True)
 
     with open("feature_columns.pkl","wb") as f:
