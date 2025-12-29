@@ -59,14 +59,15 @@ input_dict={
     "self_employed":self_employed,
     "property_area":property_area,
     "dependents":dependents,
-    "applicantincome":applicant_income,
-    "coapplicantincome":coapplicant_income,
-    "loanamount":loan_amount,
+    "applicant_income":applicant_income,
+    "coapplicant_income":coapplicant_income,
+    "loan_amount":loan_amount,
     "loan_amount_term":loan_term,
     "credit_history":credit_history
 }
 
 input_df=pd.DataFrame([input_dict])
+input_df.columns=input_df.columns.str.replace('_',' ').str.title().str.replace(' ','_')
 input_df=pd.get_dummies(input_df,drop_first=True)
 input_df=input_df.reindex(columns=feature_columns,fill_value=0)
 
