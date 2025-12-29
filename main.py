@@ -87,12 +87,15 @@ def save_model(model,model_name):
 
 if __name__=="__main__":
     df=load_data("loan_approval_dataset.csv")
-    df.columns=df.columns.str.strip()
-    df.columns=df.columns.str.replace('_',' ').str.title().str.replace(' ','_')
+    df.columns=df.columns.str.strip().str.lower()
     df=df.apply(lambda x:x.str.strip() if x.dtype=="object" else x)
-    df["Loan_Status"]=df["Loan_Status"].map({"Approved":1,"Rejected":0})
     
-    X,y=feature_split(df,"Loan_Status")
+    df["loan_status"]=df["loan_status"].map({"Approved":1,"Rejected":0})
+    
+    if "loan_id" in df.columns:
+        df=df.drop("loan_id",axis=1)
+
+    X,y=feature_split(df,"loan_status")
     X=pd.get_dummies(X,drop_first=True)
 
     with open("feature_columns.pkl","wb") as f:
