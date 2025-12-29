@@ -98,19 +98,19 @@ if __name__=="__main__":
     
     X,y=feature_split(df,"loan_status")
     
-    cat_cols = ['education', 'self_employed']
-    num_cols = [c for c in X.columns if c not in cat_cols]
+    cat_cols=['education','self_employed']
+    num_cols=[c for c in X.columns if c not in cat_cols]
     
-    encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore', drop='first')
-    encoded_cats = encoder.fit_transform(X[cat_cols])
+    encoder=OneHotEncoder(sparse_output=False,handle_unknown='ignore',drop='first')
+    encoded_cats=encoder.fit_transform(X[cat_cols])
     
-    X_encoded = pd.concat([
-        pd.DataFrame(encoded_cats, columns=encoder.get_feature_names_out(cat_cols)),
+    X_encoded=pd.concat([
+        pd.DataFrame(encoded_cats,columns=encoder.get_feature_names_out(cat_cols)),
         X[num_cols].reset_index(drop=True)
     ], axis=1)
     
-    with open("encoder.pkl", "wb") as f:
-        pickle.dump(encoder, f)
+    with open("encoder.pkl","wb") as f:
+        pickle.dump(encoder,f)
     with open("feature_columns.pkl","wb") as f:
         pickle.dump(X_encoded.columns.tolist(),f)
         

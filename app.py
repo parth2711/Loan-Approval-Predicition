@@ -64,14 +64,14 @@ st.divider()
 if st.button("Predict Loan Status"):
     input_df=pd.DataFrame([input_dict])
     
-    cat_cols = ['education', 'self_employed']
-    num_cols = [c for c in input_df.columns if c not in cat_cols]
+    cat_cols=['education','self_employed']
+    num_cols=[c for c in input_df.columns if c not in cat_cols]
     
-    encoded_cats = encoder.transform(input_df[cat_cols])
-    encoded_df = pd.DataFrame(encoded_cats, columns=encoder.get_feature_names_out(cat_cols))
+    encoded_cats=encoder.transform(input_df[cat_cols])
+    encoded_df=pd.DataFrame(encoded_cats,columns=encoder.get_feature_names_out(cat_cols))
     
-    input_final = pd.concat([encoded_df, input_df[num_cols].reset_index(drop=True)], axis=1)
-    input_final = input_final.reindex(columns=feature_columns, fill_value=0)
+    input_final=pd.concat([encoded_df,input_df[num_cols].reset_index(drop=True)],axis=1)
+    input_final=input_final.reindex(columns=feature_columns,fill_value=0)
 
     pred=model.predict(input_final)[0]
     prob=model.predict_proba(input_final)[0]
