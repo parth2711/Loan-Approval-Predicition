@@ -44,7 +44,6 @@ def feature_split(df: pd.DataFrame,target:str):
     """
     Splits the data for target.
     """
-    # Using only relevant features available for prediction
     X=df[["principal","terms","age","education","gender"]]
     y=df[target]
     return X,y
@@ -67,7 +66,13 @@ def random_forest(X_train,y_train):
     """
     Trains random forest.
     """
-    model=RandomForestClassifier(n_estimators=200,max_depth=8,min_samples_leaf=10,random_state=42)
+    model=RandomForestClassifier(
+    n_estimators=200,
+    max_depth=8,
+    min_samples_leaf=10,
+    random_state=42,
+    class_weight="balanced")
+
     model.fit(X_train,y_train)
     return model
 
@@ -89,10 +94,19 @@ def save_model(model,model_name):
 if __name__=="__main__":
     df=load_data("loan.csv")
     df.columns=df.columns.str.strip().str.lower()
-    df=df.apply(lambda x:x.strip() if isinstance(x, str) else x)
-    
-    df["loan_status"]=df["loan_status"].map({"PAIDOFF":1,"COLLECTION":0,"COLLECTION_PAIDOFF":0})
-    
+    df=df.apply(lambda x:x.strip().lower() if isinstance(x,str) else x)
+
+    df["loan_status"]=df["loan_status"].replace({
+    "paidoff":1,
+    "paid off":1,
+    "approved":1,
+    "collection":0,
+    "collection_paidoff":0,
+    "rejected":0
+    })
+
+    df=df.dropna(subset=["loan_status"])
+
     X,y=feature_split(df,"loan_status")
     X=pd.get_dummies(X,drop_first=True)
 
