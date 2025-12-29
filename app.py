@@ -65,10 +65,17 @@ if st.button("Predict Loan Status"):
     probs=model.predict_proba(input_df)[0]
     classes=model.classes_
 
-    class_probs=dict(zip(classes,probs))
-
-    approval_prob=class_probs.get(1,1.0 if pred==1 else 0.0)
-    rejection_prob=class_probs.get(0,1.0 if pred==0 else 0.0)
+    if len(classes)==1:
+        if classes[0]==1:
+            approval_prob=1.0
+            rejection_prob=0.0
+        else:
+            approval_prob=0.0
+            rejection_prob=1.0
+    else:
+        class_probs=dict(zip(classes,probs))
+        approval_prob=class_probs.get(1,0.0)
+        rejection_prob=class_probs.get(0,0.0)
 
     if pred==1:
         st.success("Loan Approved")
