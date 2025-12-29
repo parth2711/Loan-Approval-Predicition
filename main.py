@@ -58,7 +58,11 @@ def decision_tree(X_train,y_train):
     """
     Trains decision tree.
     """
-    model=DecisionTreeClassifier(max_depth=6,min_samples_leaf=10,random_state=42)
+    model=DecisionTreeClassifier(
+        max_depth=6,
+        min_samples_leaf=10,
+        random_state=42
+    )
     model.fit(X_train,y_train)
     return model
 
@@ -67,13 +71,12 @@ def random_forest(X_train,y_train):
     Trains random forest.
     """
     model=RandomForestClassifier(
-    n_estimators=200,
-    max_depth=8,
-    min_samples_leaf=10,
-    random_state=42,
-    class_weight="balanced")
-
-
+        n_estimators=200,
+        max_depth=8,
+        min_samples_leaf=10,
+        random_state=42,
+        class_weight="balanced"
+    )
     model.fit(X_train,y_train)
     return model
 
@@ -98,12 +101,12 @@ if __name__=="__main__":
     df=df.apply(lambda x:x.strip().lower() if isinstance(x,str) else x)
 
     df["loan_status"]=df["loan_status"].replace({
-    "paidoff":1,
-    "paid off":1,
-    "approved":1,
-    "collection":0,
-    "collection_paidoff":0,
-    "rejected":0
+        "paidoff":1,
+        "paid off":1,
+        "approved":1,
+        "collection":0,
+        "collection_paidoff":0,
+        "rejected":0
     })
     df=df.dropna(subset=["loan_status"])
 
