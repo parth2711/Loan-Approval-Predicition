@@ -105,3 +105,6 @@ if __name__=="__main__":
     print("\nRandom Forest")
     rf_model=random_forest(X_train,y_train)
     model_evaluation(rf_model,X_test,y_test)
+
+    save_model(dt_model,"decision_tree.pkl")
+    save_model(rf_model,"random_forest.pkl")
