@@ -21,6 +21,13 @@ st.divider()
 with st.expander("ℹ️ About this app"):
     st.write("""
     This web app predicts whether a loan application is likely to be Approved or Rejected.
+
+    Models used:
+    - Decision Tree
+    - Random Forest
+
+    This app was built as part of my learning journey to understand
+    tree-based models on real-world tabular data.
     """)
 
 st.subheader("Model Selection")
@@ -32,36 +39,23 @@ st.subheader("Applicant Details")
 
 col1,col2=st.columns(2)
 with col1:
-    gender=st.selectbox("Gender",["Male","Female"])
-    married=st.selectbox("Married",["Yes","No"])
-    education=st.selectbox("Education",["Graduate","Not Graduate"])
-    dependents=st.selectbox("Dependents",["0","1","2","3+"])
-    income=st.number_input("Applicant Income",min_value=0,value=50000)
-    loan_amt=st.number_input("Loan Amount",min_value=0,value=100000)
+    gender=st.selectbox("Gender",["male","female"])
+    education=st.selectbox("Education",["High School or Below","college","Bechalor","Master or Above"])
+    age=st.number_input("Age",min_value=18,max_value=100,value=30)
 with col2:
-    self_employed=st.selectbox("Self Employed",["Yes","No"])
-    prop_area=st.selectbox("Property Area",["Urban","Semiurban","Rural"])
-    credit_hist=st.selectbox("Credit History",[1.0,0.0])
-    co_income=st.number_input("Coapplicant Income",min_value=0,value=0)
-    term=st.number_input("Loan Term (months)",min_value=1,value=360)
+    principal=st.number_input("Principal Amount",min_value=300,max_value=1000,value=1000,step=100)
+    terms=st.selectbox("Terms (days)",[7,15,30])
 
 input_dict={
     "gender":gender,
-    "married":married,
     "education":education,
-    "self_employed":self_employed,
-    "property_area":prop_area,
-    "dependents":dependents,
-    "applicant_income":income,
-    "coapplicant_income":co_income,
-    "loan_amount":loan_amt,
-    "loan_amount_term":term,
-    "credit_history":credit_hist
+    "age":age,
+    "principal":principal,
+    "terms":terms
 }
 
 input_df=pd.DataFrame([input_dict])
 input_df=pd.get_dummies(input_df,drop_first=True)
-
 input_df=input_df.reindex(columns=feature_columns,fill_value=0)
 
 st.divider()
@@ -77,6 +71,9 @@ if st.button("Predict Loan Status"):
     st.write(f"Approval Probability: {prob[1]:.2%}")
     st.write(f"Rejection Probability: {prob[0]:.2%}")
     st.progress(int(prob[1]*100))
+    st.caption(f"Prediction made using {model_choice}")
+
+st.divider()
 
 with st.expander("About me"):
     st.write("""
